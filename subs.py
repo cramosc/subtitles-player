@@ -71,7 +71,10 @@ def get_key(stdscr):
 
 def main(stdscr, start):
     curses.curs_set(0)
+    curses.use_default_colors()
     stdscr.nodelay(True)
+
+    scale = 1.0
 
     subs = get_subtitles()
 
@@ -92,9 +95,13 @@ def main(stdscr, start):
         elif k == 'd':
             start -= 5
         elif k == 'z':
-            start += 50
+            scale += 0.1
         elif k == 'c':
-            start -= 50
+            scale -= 0.1
+        elif k == 'q':
+            start += 500
+        elif k == 'e':
+            start -= 500
 
         if stop:
             continue
@@ -102,10 +109,13 @@ def main(stdscr, start):
         stdscr.clear()
 
         t = now() - start
-        s = subs.get(t)
+        s = subs.get(int(t*scale))
         if s:
             stdscr.addstr(0, 0, s, curses.A_BOLD)
-        stdscr.addstr(stdscr.getmaxyx()[0] - 1, 0, get_time_str(t))
+        height, width = stdscr.getmaxyx()
+        stdscr.addstr(height - 1, 0, get_time_str(t), curses.A_DIM)
+        speed = '{:3.1f}x'.format(scale)
+        stdscr.addstr(height -1, width - 5, speed, curses.A_DIM)
         sleep(.1)
 
 
