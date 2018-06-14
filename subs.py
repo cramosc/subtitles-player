@@ -84,7 +84,6 @@ def get_sub(line_no, lines):
                 sub_lines.append(lines[line_no])
         line_no += 1
 
-    sub_str = '\n'.join(sub_lines)
     sub = {}
     if t0_ms and t1_ms:
         sub = {t: sub_lines for t in range(t0_ms, t1_ms + 1)}
