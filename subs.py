@@ -12,6 +12,7 @@ class State:
         self.start = start
         self.pause = pause
         self.scale = scale
+        self.show_info = True
 
     def handle_key_press(self, k):
         if k == 'q':
@@ -26,14 +27,26 @@ class State:
             self.start += 5
         elif k == 'd':
             self.start -= 5
-        elif k == 'z':
-            self.scale += 0.1
         elif k == 'c':
-            self.scale -= 0.1
+            self.scale += 0.05
+            self._adjust_start_after_rescaling(self.scale - 0.05)
+        elif k == 'z':
+            self.scale -= 0.05
+            self._adjust_start_after_rescaling(self.scale + 0.05)
         elif k == 'w':
-            self.start += 500
+            self.start += 600
         elif k == 'r':
-            self.start -= 500
+            self.start -= 600
+        elif k == 'i':
+            self.show_info = not self.show_info
+
+    def get_current_time(self):
+        _now = self.pause or now()
+        return int((_now - self.start)*self.scale)
+
+    def _adjust_start_after_rescaling(self, old_scale):
+        _now = self.pause or now()
+        self.start = int(_now - (_now - self.start)*old_scale/self.scale)
 
 
 def get_time_from_str(t):
@@ -153,21 +166,19 @@ def main(stdscr, start, subs):
     while True:
         state.handle_key_press(get_key(stdscr))
 
-        if state.pause:
-            continue
-
         stdscr.clear()
         height, width = stdscr.getmaxyx()
 
-        t = now() - state.start
+        t = state.get_current_time()
 
-        s = subs.get(int(t*state.scale))
+        s = subs.get(t)
         if s:
             print_sub(stdscr, s)
 
-        stdscr.addstr(height - 1, 0, get_time_str(t), curses.A_DIM)
-        speed = '{:3.1f}x'.format(state.scale)
-        stdscr.addstr(height -1, width - 5, speed, curses.A_DIM)
+        if state.show_info:
+            stdscr.addstr(height - 1, 0, get_time_str(t), curses.A_DIM)
+            speed = '{:4.2f}x'.format(state.scale)
+            stdscr.addstr(height -1, width - 6, speed, curses.A_DIM)
 
         curses.napms(50)
 
