@@ -7,6 +7,11 @@ from typing import List, Tuple, Dict, Optional
 
 SubsMap = Dict[int, List[str]]
 
+TIME_ACCURACY = 10
+SMALL_TIME_SKIP = 5
+LARGE_TIME_SKIP = 600
+SCALE_STEP = 0.02
+
 
 class State:
     def __init__(self, start: int, pause: Optional[int] = None, scale: float = 1) -> None:
@@ -25,19 +30,19 @@ class State:
             else:
                 self.pause = now()
         elif k == 'a':
-            self.start += 5
+            self.start += SMALL_TIME_SKIP
         elif k == 'd':
-            self.start -= 5
+            self.start -= SMALL_TIME_SKIP
         elif k == 'c':
-            self.scale += 0.05
-            self._adjust_start_after_rescaling(self.scale - 0.05)
+            self.scale += SCALE_STEP
+            self._adjust_start_after_rescaling(self.scale - SCALE_STEP)
         elif k == 'z':
-            self.scale -= 0.05
-            self._adjust_start_after_rescaling(self.scale + 0.05)
+            self.scale -= SCALE_STEP
+            self._adjust_start_after_rescaling(self.scale + SCALE_STEP)
         elif k == 'w':
-            self.start += 600
+            self.start += LARGE_TIME_SKIP
         elif k == 'r':
-            self.start -= 600
+            self.start -= LARGE_TIME_SKIP
         elif k == 'i':
             self.show_info = not self.show_info
 
@@ -51,16 +56,17 @@ class State:
 
 
 def get_time_from_str(t: str) -> int:
-    t = t.split(':')
-    return int((int(t[0])*3600 + int(t[1])*60 + float(t[2].replace(',', '.')))*10)
+    h, m, s = t.split(':')
+    h, m, s = int(h), int(m), float(s.replace(',', '.'))
+    return int((h*3600 + m*60 + s)*TIME_ACCURACY)
 
 
 def now() -> int:
-    return int(time() * 10)
+    return int(time() * TIME_ACCURACY)
 
 
 def get_time_str(t: int) -> str:
-    t = t // 10
+    t = t // TIME_ACCURACY
     h = t // 3600
     t = t % 3600
     m = t // 60
