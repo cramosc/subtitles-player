@@ -115,23 +115,23 @@ def get_subtitles(file: str) -> SubsMap:
     return subs
 
 
-def words_and_spaces(s: str) -> List[str]:
-    return list(itertools.chain.from_iterable(zip(s.split(), itertools.repeat(' '))))[:-1]
+def words_and_spaces(text: str) -> List[str]:
+    return list(itertools.chain.from_iterable(zip(text.split(), itertools.repeat(' '))))[:-1]
 
 
-def print_centered(window, width: int, line: int, s: str) -> None:
-    window.addstr(line, max(0, (width - len(s))//2), s, curses.A_BOLD)
+def print_centered(window, width: int, line: int, text: str) -> None:
+    window.addstr(line, max(0, (width - len(text)) // 2), text, curses.A_BOLD)
 
 
-def print_sub_line(window, line: int, s: str) -> None:
-    if not s:
+def print_sub_line(window, line: int, text: str) -> None:
+    if not text:
         return
 
     _, width = window.getmaxyx()
-    if len(s) < width:
-        print_centered(window, width, line, s)
+    if len(text) < width:
+        print_centered(window, width, line, text)
     else:
-        parts = words_and_spaces(s)
+        parts = words_and_spaces(text)
         substr = ''
         for part in parts:
             if len(substr) + len(part) < width:
@@ -143,9 +143,9 @@ def print_sub_line(window, line: int, s: str) -> None:
         print_centered(window, width, line, substr)
 
 
-def print_sub(window, s: List[str]) -> None:
+def print_sub(window, subtitle: List[str]) -> None:
     line = 0
-    for l in s:
+    for l in subtitle:
         print_sub_line(window, line, l)
         line = window.getyx()[0] + 1
 
@@ -169,16 +169,16 @@ def ui_loop(stdscr, start: int, subs: SubsMap) -> None:
         state.handle_key_press(get_key(stdscr))
 
         stdscr.clear()
-        height, width = stdscr.getmaxyx()
 
-        t = state.get_current_time()
+        current_time = state.get_current_time()
 
-        s = subs.get(t)
-        if s:
-            print_sub(stdscr, s)
+        sub = subs.get(current_time)
+        if sub:
+            print_sub(stdscr, sub)
 
         if state.show_info:
-            stdscr.addstr(height - 1, 0, get_time_str(t), curses.A_DIM)
+            height, width = stdscr.getmaxyx()
+            stdscr.addstr(height - 1, 0, get_time_str(current_time), curses.A_DIM)
             speed = '{:4.2f}x'.format(state.scale)
             stdscr.addstr(height -1, width - 6, speed, curses.A_DIM)
 
@@ -187,7 +187,7 @@ def ui_loop(stdscr, start: int, subs: SubsMap) -> None:
 
 def main() -> None:
     start = now()
-    parser = argparse.ArgumentParser(description='Display subtitles from file in a dark background')
+    parser = argparse.ArgumentParser(description='Display subtitles from file')
     parser.add_argument('file', type=str, help='file path')
 
     options = parser.parse_args()
