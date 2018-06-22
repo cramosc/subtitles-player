@@ -2,9 +2,10 @@
 import argparse
 import sys
 
-from app import App
-from time_utils import now
-from subs_processor import Subs, SubsFileNotFound
+from src.app import App
+from src.time_utils import now
+
+from src.subs_processor import Subs, SubsFileNotFound
 
 
 def main() -> int:

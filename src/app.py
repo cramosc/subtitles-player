@@ -2,9 +2,9 @@ import curses
 from itertools import chain, repeat
 from typing import List, Optional
 
-from state import State
-from subs_processor import Subs
-from time_utils import get_time_str
+from .subs_processor import Subs
+from .state import State
+from .time_utils import get_time_str
 
 
 class App:

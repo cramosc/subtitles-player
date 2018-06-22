@@ -1,5 +1,6 @@
 from typing import Optional, List
-from time_utils import get_time_from_str
+
+from .time_utils import get_time_from_str
 
 
 class SubsFileNotFound(Exception):

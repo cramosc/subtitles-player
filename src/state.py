@@ -1,6 +1,6 @@
 from typing import Optional
 
-from time_utils import now
+from .time_utils import now
 
 SMALL_TIME_SKIP = 5
 LARGE_TIME_SKIP = 600
