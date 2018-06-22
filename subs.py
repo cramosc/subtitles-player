@@ -4,7 +4,7 @@ import sys
 
 from app import App
 from time_utils import now
-from subs_processer import Subs, SubsFileNotFound
+from subs_processor import Subs, SubsFileNotFound
 
 
 def main() -> int:

@@ -3,7 +3,7 @@ from itertools import chain, repeat
 from typing import List, Optional
 
 from state import State
-from subs_processer import Subs
+from subs_processor import Subs
 from time_utils import get_time_str
 
 
