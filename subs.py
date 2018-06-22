@@ -123,31 +123,33 @@ def print_centered(window, width: int, line: int, text: str) -> None:
     window.addstr(line, max(0, (width - len(text)) // 2), text, curses.A_BOLD | curses.color_pair(1))
 
 
-def print_sub_line(window, line: int, text: str) -> None:
+def get_lines_adapted_to_width(width: int, text: str) -> List[str]:
     if not text:
-        return
+        return []
 
-    _, width = window.getmaxyx()
     if len(text) < width:
-        print_centered(window, width, line, text)
-    else:
-        parts = words_and_spaces(text)
-        substr = ''
-        for part in parts:
-            if len(substr) + len(part) < width:
-                substr +=part
-            else:
-                print_centered(window, width, line, substr)
-                line += 1
-                substr = part
-        print_centered(window, width, line, substr)
+        return [text]
+
+    parts = words_and_spaces(text)
+    lines = []
+    sub_str = ''
+    for part in parts:
+        if len(sub_str) + len(part) < width:
+            sub_str += part
+        else:
+            lines.append(sub_str)
+            sub_str = part
+    lines.append(sub_str)
+    return lines
 
 
 def print_sub(window, subtitle: List[str]) -> None:
-    line = 0
-    for l in subtitle:
-        print_sub_line(window, line, l)
-        line = window.getyx()[0] + 1
+    height, width = window.getmaxyx()
+    lines = list(itertools.chain.from_iterable(get_lines_adapted_to_width(width, text) for text in subtitle))
+    height -= 1
+    for line in reversed(lines):
+        height -= 1
+        print_centered(window, width, height, line)
 
 
 def get_key(stdscr) -> Optional[str]:
@@ -178,10 +180,10 @@ def ui_loop(stdscr, start: int, subs: SubsMap) -> None:
             print_sub(stdscr, sub)
 
         if state.show_info:
-            height, width = stdscr.getmaxyx()
-            stdscr.addstr(height - 1, 0, get_time_str(current_time), curses.A_DIM | curses.color_pair(1))
+            _, width = stdscr.getmaxyx()
+            stdscr.addstr(0, 0, get_time_str(current_time), curses.A_DIM | curses.color_pair(1))
             speed = '{:4.2f}x'.format(state.scale)
-            stdscr.addstr(height -1, width - 6, speed, curses.A_DIM | curses.color_pair(1))
+            stdscr.addstr(0, width - 5, speed, curses.A_DIM | curses.color_pair(1))
 
         curses.napms(50)
 
