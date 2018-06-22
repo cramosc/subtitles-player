@@ -101,7 +101,7 @@ def get_sub(line_no: int, lines: List[str]) -> Tuple[SubsMap, int]:
 def get_subtitles(file: str) -> SubsMap:
     try:
         with open(file, 'r') as f:
-            lines = [l.strip('\n') for l in f.readlines()]
+            lines = [l.strip('\n ') for l in f.readlines()]
     except FileNotFoundError:
         print('File {} cannot be found'.format(file))
         sys.exit(1)
@@ -120,7 +120,7 @@ def words_and_spaces(text: str) -> List[str]:
 
 
 def print_centered(window, width: int, line: int, text: str) -> None:
-    window.addstr(line, max(0, (width - len(text)) // 2), text, curses.A_BOLD)
+    window.addstr(line, max(0, (width - len(text)) // 2), text, curses.A_BOLD | curses.color_pair(1))
 
 
 def print_sub_line(window, line: int, text: str) -> None:
@@ -162,6 +162,7 @@ def ui_loop(stdscr, start: int, subs: SubsMap) -> None:
     curses.curs_set(0)
     curses.use_default_colors()
     stdscr.nodelay(True)
+    curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
 
     state = State(start)
 
@@ -178,9 +179,9 @@ def ui_loop(stdscr, start: int, subs: SubsMap) -> None:
 
         if state.show_info:
             height, width = stdscr.getmaxyx()
-            stdscr.addstr(height - 1, 0, get_time_str(current_time), curses.A_DIM)
+            stdscr.addstr(height - 1, 0, get_time_str(current_time), curses.A_DIM | curses.color_pair(1))
             speed = '{:4.2f}x'.format(state.scale)
-            stdscr.addstr(height -1, width - 6, speed, curses.A_DIM)
+            stdscr.addstr(height -1, width - 6, speed, curses.A_DIM | curses.color_pair(1))
 
         curses.napms(50)
 
