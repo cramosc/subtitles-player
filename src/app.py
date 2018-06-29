@@ -56,13 +56,25 @@ class App:
         lines.append(sub_str)
         return lines
 
-    def _print_sub(self, subtitle: List[str]) -> None:
+    def _print_sub(self, current_time: int) -> None:
+        subtitle = self._subs.get_sub(current_time)
+        if not subtitle:
+            return
+
         height, width = self._window.getmaxyx()
         lines = list(chain.from_iterable(self._get_lines_adapted_to_width(text) for text in subtitle))
         height -= 1
         for text in reversed(lines):
             height -= 1
             self._print_centered(height, text)
+
+    def _print_info(self, current_time: int) -> None:
+        if not self._state.show_info:
+            return
+
+        self._window.addstr(0, 0, get_time_str(current_time), curses.A_DIM | curses.color_pair(1))
+        speed = '{:4.2f}x'.format(self._state.scale)
+        self._window.addstr(0, self._width - 5, speed, curses.A_DIM | curses.color_pair(1))
 
     def _get_key(self) -> Optional[str]:
         try:
@@ -82,16 +94,10 @@ class App:
             if self._state.exit:
                 return 0
 
-            self._window.clear()
             current_time = self._state.get_current_time()
 
-            sub = self._subs.get_sub(current_time)
-            if sub:
-                self._print_sub(sub)
-
-            if self._state.show_info:
-                self._window.addstr(0, 0, get_time_str(current_time), curses.A_DIM | curses.color_pair(1))
-                speed = '{:4.2f}x'.format(self._state.scale)
-                self._window.addstr(0, self._width - 5, speed, curses.A_DIM | curses.color_pair(1))
+            self._window.clear()
+            self._print_sub(current_time)
+            self._print_info(current_time)
 
             curses.napms(50)

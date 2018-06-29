@@ -4,7 +4,6 @@ import sys
 
 from src.app import App
 from src.time_utils import now
-
 from src.subs_processor import Subs, SubsFileNotFound
 
 
